@@ -1,7 +1,24 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
+// ============================================================================
+// TELEGRAM INTEGRATION
+// ============================================================================
+// Эта функция использует Telegram Bot API для отправки сообщений в чат.
+//
+// Требуемые переменные окружения:
+// - TELEGRAM_BOT_TOKEN: Токен бота от @BotFather (формат: "123456:ABC-DEF...")
+// - TELEGRAM_CHAT_ID: ID чата/группы где получать сообщения (может быть отрицательным для групп)
+//
+// Как это работает:
+// 1. Пользователь заполняет форму на сайте (имя, email, сообщение)
+// 2. Форма отправляет POST запрос на /api/send-message
+// 3. API проверяет данные и форматирует сообщение
+// 4. Сообщение отправляется на Telegram Bot API
+// 5. Бот отправляет сообщение в указанный чат (chat_id)
+// ============================================================================
+
+const TELEGRAM_BOT_TOKEN = "8576828258:AAFN-9Vo0FrGqbp8IDLbPzjf83GDiWiUSeY"
+const TELEGRAM_CHAT_ID = "-5058366830"
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,16 +54,18 @@ export async function POST(request: NextRequest) {
 ${escapeHTML(message)}
     `.trim()
 
-    // Send to Telegram
+    // Send to Telegram using the official Telegram Bot API
+    // Endpoint: https://api.telegram.org/bot{TOKEN}/sendMessage
+    // Документация: https://core.telegram.org/bots/api#sendmessage
     const telegramResponse = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: telegramMessage,
-        parse_mode: "HTML",
+        chat_id: TELEGRAM_CHAT_ID, // Куда отправить сообщение
+        text: telegramMessage, // Содержание сообщения
+        parse_mode: "HTML", // Форматирование (поддерживает <b>, <i>, и т.д.)
       }),
     })
 
